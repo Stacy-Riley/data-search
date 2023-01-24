@@ -13,21 +13,38 @@ fetch(endpoint)
     .then(data => cities.push(...data)) 
 
 // When user inputs data, we need to filter it down to only return a match:
-
+//wordToMatch = user input
 function findMatches(wordToMatch, cities){
     return cities.filter(place => {
 //Here we need to figure out if the city or state match what was searched:
-//we need to put a variable into a regular expression: g=global i =case insensitive 
+//we need to put a variable into a regular expression: g=global checks everywhere i =case insensitive 
 const regex = new RegExp(wordToMatch, 'gi')        
 return place.city.match(regex) || place.state.match(regex)
     });
 }
 
-// Display function
+//Function to put the comma in the population count:
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// Display function to show matches:
 function displayMatches() {
     const matchArray = findMatches(this.value, cities)
     // console.log(matchArray)
-
+    const html = matchArray.map(place => {
+    const regex = new RegExp(this.value, 'gi');
+    const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`);
+    const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`)
+        return `
+            <li>
+                <span class="name">${cityName}, ${stateName}</span>
+                <span class="population">${numberWithCommas(place.population)}</span>
+            </li>
+        `;
+        //.join() here to turn array into a string
+    }).join('');
+    suggestions.innerHTML = html;
 
     //This console.log displays the 'change' and 'keyup' entries in the console
     // console.log(this.value)
@@ -36,8 +53,7 @@ function displayMatches() {
 const searchInput = document.querySelector('.search');
 const suggestions = document.querySelector('.suggestions');
 
-//Listen for a change inside the input field and when present, run function FindMatches
+//Listen for a change inside the input field and when present, run function displayMatches
 searchInput.addEventListener('change', displayMatches);
 searchInput.addEventListener('keyup', displayMatches);
-    // console.log(cities)
-// console.log(prom);
+   
